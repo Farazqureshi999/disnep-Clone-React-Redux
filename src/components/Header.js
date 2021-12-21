@@ -1,37 +1,76 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useSelector , useDispatch} from 'react-redux';
+import { Link, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-
+import {selectUserName,selectUserPhoto, setUserLogin,setSignOut} from '../features/users/userSlice'; 
+import{
+    getAuth,
+    signInWithPopup,GoogleAuthProvider,signOut
+} from 'firebase/auth'
 function Header() {
+    // const [photoUrl,setPhotoUrl] = useState();
+    const username = useSelector(selectUserName);
+    const photo = useSelector(selectUserPhoto);
+    const dispatch = useDispatch();
+    const auth = getAuth()
+    const history  = useHistory();
+
+    // console.log(username);
+    const signIn = () =>{
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth,provider)
+        .then((result)=>{
+            dispatch(setUserLogin({
+                name: result.user.displayName,
+                email: result.user.email,
+                photo:result.user.photoURL
+            }));
+            history.push('/');
+        })
+    }
+
+    const SignOut = () => {
+        signOut(auth).then(()=>{
+            
+            dispatch(setSignOut());
+            history.push('/login');
+        })
+    }
+
+    
+
     return (
         <Nav>
+            <Link to={'/'}>
             <Logo  src='/images/logo.svg'/>
-            <NavMenu>
-                <a href="#">
-                    <img src="/images/home-icon.svg"/>
+            </Link>
+            {username ? (<><NavMenu>
+                <Link to={'/'}>
+                    <img src="/images/home-icon.svg" />
                     <span>HOME</span>
-                </a>
-                <a href="#">
-                    <img src="/images/search-icon.svg"/>
+                </Link>
+                <Link to={'/search'}>
+                    <img src="/images/search-icon.svg" />
                     <span>SEARCH</span>
-                </a>
+                </Link>
                 <a href="#">
-                    <img src="/images/watchlist-icon.svg"/>
+                    <img src="/images/watchlist-icon.svg" />
                     <span>WATCHLIST</span>
                 </a>
                 <a href="#">
-                    <img src="/images/original-icon.svg"/>
+                    <img src="/images/original-icon.svg" />
                     <span>ORIGINALS</span>
                 </a>
                 <a href="#">
-                    <img src="/images/movie-icon.svg"/>
+                    <img src="/images/movie-icon.svg" />
                     <span>MOVIES</span>
                 </a>
                 <a href="#">
-                    <img src="/images/series-icon.svg"/>
+                    <img src="/images/series-icon.svg" />
                     <span>SERIES</span>
                 </a>
-            </NavMenu>
-            <UserImage src="/images/avatar.jpg"/>
+            </NavMenu><UserImage onClick={SignOut} src={photo} /></>) : (<Login onClick={signIn}>Login</Login>)}
+            
         </Nav>
     )
 }
@@ -96,4 +135,21 @@ const UserImage = styled.img`
     height:40px;
     border-radius:50%;
     cursor:pointer;
+`
+
+const Login = styled.button`
+      border:1px solid #f9f9f9;
+      padding: 8px 16px;
+      border-radius: 4px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background-color: rgba(0,0,0,0.6);
+      color:#fff;
+      cursor: pointer;
+      margin-left: auto;
+
+      &:hover{
+          background-color: #f9f9f9;
+          color:#000;
+      }
 `

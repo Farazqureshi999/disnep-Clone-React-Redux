@@ -1,12 +1,34 @@
 import React from 'react'
 import styled from 'styled-components'
-
+import { useDispatch} from 'react-redux';
+import {setUserLogin} from '../features/users/userSlice'; 
+import{
+    getAuth,
+    signInWithPopup,GoogleAuthProvider
+} from 'firebase/auth'
+import { useHistory } from 'react-router-dom';
 function Login() {
+    const auth = getAuth()
+    const history  = useHistory();
+    const dispatch = useDispatch();
+    
+    const signIn = () =>{
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth,provider)
+        .then((result)=>{
+            dispatch(setUserLogin({
+                name: result.user.displayName,
+                email: result.user.email,
+                photo:result.user.photoURL
+            }));
+            history.push('/');
+        })
+    }
     return (
         <Container>
             <Content>
                 <LogoOne src="/images/cta-logo-one.svg" />
-                <SignUp>
+                <SignUp onClick={signIn}>
                     GET ALL THERE
                 </SignUp>
                 <Description>

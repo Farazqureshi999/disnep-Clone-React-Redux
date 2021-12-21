@@ -1,13 +1,29 @@
-import React from 'react'
+import React,{useEffect,useState} from 'react'
+import { useParams } from 'react-router-dom';
 import styled from "styled-components";
+import db from '../firebase';
+import {
+   doc,getDoc
+  } from 'firebase/firestore'
+
+
 function Detail() {
+    const {id} = useParams();
+    const [movie,setMovie] = useState([]);
+    useEffect(async() => {
+        const docRef = doc(db, 'movies', id);
+        getDoc(docRef).then((snapshot) => { 
+            setMovie(snapshot.data());
+          });
+    }, [])
+   
     return (
        <Container>
            <Background>
-               <img src="https://www.awn.com/sites/default/files/styles/original/public/image/featured/1046782-first-time-director-domee-shi-takes-bao-new-pixar-theatrical-short.jpg?itok=1RQ-b2gF"/>
+               <img src={movie.backgroundImg}/>
            </Background>
            <ImageTitle>
-               <img src="/images/pixar-bao.png" />
+               <img src={movie.titleImg} />
            </ImageTitle>
            <Controls>
                 <PlayButton>
@@ -26,10 +42,10 @@ function Detail() {
                 </GroupWatchButton>
            </Controls>
            <SubTitle>
-               2018 . 7m . Family, Fanatasy, Kids, Animation
+              {movie.subTitle}
            </SubTitle>
            <Description>
-           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+               {movie.description}
            </Description>
         </Container>
     )
@@ -59,15 +75,16 @@ const Background = styled.div`
 `
 
 const ImageTitle = styled.div`
-    height:25vh;
-    min-height:170px;
-    min-width:200px;
-    width:25vw;
-    margin-bottom: 10px;
+    height:20vh;
+    min-height:150px;
+    min-width:150px;
+    width:20vw;
+    margin: 40px 0;
     img{
         width:100%;
         height:100%;
         object-fit:contain;
+        object-position: left;
     }
 `
 
